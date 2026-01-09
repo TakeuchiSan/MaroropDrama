@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DramaStream</title>
+    <title>DramaHub - Neon Ultimate</title>
     
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><defs><filter id=%22glow%22><feGaussianBlur stdDeviation=%221.5%22 result=%22coloredBlur%22/><feMerge><feMergeNode in=%22coloredBlur%22/><feMergeNode in=%22SourceGraphic%22/></feMerge></filter><linearGradient id=%22grad%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 stop-color=%22%23FF0055%22/><stop offset=%2225%25%22 stop-color=%22%23FFCC00%22/><stop offset=%2250%25%22 stop-color=%22%2300FFBB%22/><stop offset=%2275%25%22 stop-color=%22%230099FF%22/><stop offset=%22100%25%22 stop-color=%22%23CC00FF%22/></linearGradient></defs><path fill=%22url(%23grad)%22 filter=%22url(%23glow)%22 d=%22M6.8 5.2C6.4 5.4 6 5.9 6 6.5V17.5C6 18.1 6.4 18.6 6.8 18.8C7.3 19.1 7.9 19 8.4 18.7L18.4 13.2C18.8 12.9 19 12.5 19 12C19 11.5 18.8 11.1 18.4 10.8L8.4 5.3C7.9 5 7.3 4.9 6.8 5.2Z%22 stroke=%22white%22 stroke-width=%221%22/></svg>">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     
@@ -17,7 +19,6 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         body { background-color: #000; color: #fff; }
         
-        /* Custom Loader for Search Input */
         .input-loader {
             border: 2px solid rgba(255,255,255,0.1);
             border-top: 2px solid #ef4444;
@@ -45,16 +46,70 @@
         .plyr { height: 100vh !important; width: 100vw !important; background: #000; }
         .plyr__controls { display: none !important; }
         :root { --plyr-color-main: #ef4444; }
+
+        /* Custom Slider Style */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+            height: 30px; 
+            z-index: 60;
+            position: relative;
+            touch-action: none; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #ef4444;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            border: 2px solid white;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.4);
+            border-radius: 2px;
+        }
+        
+        /* Transition for controls */
+        .controls-transition {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="font-sans antialiased pb-20 select-none bg-black" x-data="dramaApp()">
 
-    <nav x-show="activeTab === 'home' && !isWatching" class="fixed top-0 w-full z-40 bg-gradient-to-b from-black/95 to-transparent px-4 py-4 flex justify-between items-center transition-all">
-        <div class="flex items-center gap-1">
-            <svg class="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M15.41 16.09l-4.58-2.59 4.58-2.59V16.09M6 12l-4 4V8l4 4z M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-            <span class="font-bold text-lg tracking-tight">Drama<span class="text-red-500">Stream</span></span>
+    <nav x-show="activeTab === 'home' && !isWatching" class="fixed top-0 w-full z-40 bg-gradient-to-b from-black/90 via-black/50 to-transparent px-4 py-4 flex justify-between items-center transition-all backdrop-blur-sm">
+        <div class="flex items-center gap-2">
+            <div class="relative w-9 h-9 group cursor-pointer">
+                <div class="absolute inset-0 bg-gradient-to-r from-red-500 via-yellow-400 to-blue-600 rounded-lg blur-lg opacity-60 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
+                <svg class="relative w-full h-full drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="neonRainbowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FF0055;stop-opacity:1" />
+                            <stop offset="25%" style="stop-color:#FFCC00;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#00FFBB;stop-opacity:1" />
+                            <stop offset="75%" style="stop-color:#0099FF;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#CC00FF;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="edgeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                             <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+                             <stop offset="100%" style="stop-color:#00FFFF;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M6.8 5.2C6.4 5.4 6 5.9 6 6.5V17.5C6 18.1 6.4 18.6 6.8 18.8C7.3 19.1 7.9 19 8.4 18.7L18.4 13.2C18.8 12.9 19 12.5 19 12C19 11.5 18.8 11.1 18.4 10.8L8.4 5.3C7.9 5 7.3 4.9 6.8 5.2Z" fill="url(#neonRainbowGrad)" stroke="url(#edgeGrad)" stroke-width="1.2" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="font-bold text-xl tracking-tight text-white drop-shadow-md">
+                Drama<span class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-yellow-300 to-blue-400 font-extrabold filter drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]">Hub</span>
+            </span>
         </div>
-        <div @click="activeTab = 'account'" class="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer border border-gray-700 shadow-lg overflow-hidden bg-gray-800">
+        
+        <div @click="activeTab = 'account'" class="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer border border-gray-700 shadow-[0_0_10px_rgba(255,255,255,0.1)] overflow-hidden bg-gray-800">
             <template x-if="currentUser && currentUser.avatar">
                 <img :src="currentUser.avatar" class="w-full h-full object-cover">
             </template>
@@ -100,7 +155,6 @@
         <div class="bg-gray-900 border-t sm:border border-gray-800 w-full max-w-sm p-6 rounded-t-2xl sm:rounded-2xl shadow-2xl relative" @click.outside="showSettingsModal = false">
             <div class="w-12 h-1.5 bg-gray-700 rounded-full mx-auto mb-4 sm:hidden"></div>
             <h2 class="text-lg font-bold mb-4 text-white">Pengaturan Aplikasi</h2>
-            
             <div class="space-y-1">
                 <button @click="clearCacheData()" class="w-full py-3 flex items-center justify-between text-gray-300 hover:text-white border-b border-gray-800">
                     <span class="text-sm">Hapus Data Cache</span>
@@ -108,7 +162,7 @@
                 </button>
                 <div class="py-3 flex items-center justify-between text-gray-300 border-b border-gray-800">
                     <span class="text-sm">Versi Aplikasi</span>
-                    <span class="text-xs font-mono text-gray-500">v3.5.1</span>
+                    <span class="text-xs font-mono text-gray-500">v3.7.0</span>
                 </div>
             </div>
             <button @click="showSettingsModal = false" class="mt-6 w-full py-2.5 bg-gray-800 text-white rounded-lg text-sm font-bold">Tutup</button>
@@ -119,7 +173,7 @@
         <div class="bg-gray-900 border border-gray-800 w-full max-w-sm p-6 rounded-2xl shadow-2xl relative" @click.outside="showHelpModal = false">
             <h2 class="text-lg font-bold mb-2 text-white">Bantuan</h2>
             <p class="text-sm text-gray-400 mb-4 leading-relaxed">
-                DramaStream adalah aplikasi streaming open source.
+                DramaHub adalah aplikasi streaming open source.
                 <br><br>
                 1. <b>Swipe Atas/Bawah</b> di player untuk ganti episode.<br>
                 2. Klik ikon kamera di profil untuk mengganti foto.<br>
@@ -166,11 +220,8 @@
                 <h2 class="text-2xl font-bold mb-4">Cari Drama</h2>
                 <div class="relative">
                     <input type="text" x-model="searchQuery" @keydown.enter="doSearch()" placeholder="Judul drama, artis..." class="w-full bg-gray-900 text-white rounded-full py-3 px-5 pl-12 border border-gray-800 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600 transition-all">
-                    
                     <svg @click="doSearch()" class="h-5 w-5 text-gray-500 absolute left-4 top-3.5 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                    
                     <div x-show="isSearching" class="absolute right-4 top-3.5 input-loader"></div>
-                    
                     <button x-show="!isSearching && searchQuery" @click="searchQuery=''; searchResults=[]" class="absolute right-4 top-3.5 text-gray-500">✕</button>
                 </div>
             </div>
@@ -244,7 +295,7 @@
             </div>
 
             <h2 class="text-2xl font-bold text-white mb-1" x-text="currentUser ? currentUser.username : 'Tamu'"></h2>
-            <p class="text-gray-500 text-xs mb-8 tracking-wide uppercase" x-text="currentUser ? 'Member DramaStream' : 'Belum Login'"></p>
+            <p class="text-gray-500 text-xs mb-8 tracking-wide uppercase" x-text="currentUser ? 'Member Pro' : 'Belum Login'"></p>
             
             <div x-show="currentUser" class="max-w-xs mx-auto space-y-3 mb-8">
                  <div class="bg-gray-900/50 rounded-xl p-4 text-left border border-gray-800">
@@ -280,7 +331,7 @@
                      <button @click="logout()" class="w-full py-3 px-4 bg-gray-900 hover:bg-gray-800 text-red-500 border border-gray-800 rounded-lg font-bold text-sm transition">Keluar Akun</button>
                 </template>
             </div>
-             <p class="mt-12 text-[10px] text-gray-700 font-mono">DramaStream v1.0</p>
+             <p class="mt-12 text-[10px] text-gray-700 font-mono">Build v3.7.0 • UpstashDB</p>
         </div>
 
         <div x-show="isWatching" class="fixed inset-0 z-50 bg-black" 
@@ -290,11 +341,20 @@
             
             <div class="absolute inset-0 w-full h-full bg-black flex items-center justify-center"
                  @touchstart="handleTouchStart($event)"
-                 @touchend="handleTouchEnd($event)">
+                 @touchend="handleTouchEnd($event)"
+                 @click="toggleControls()">
                 <video id="player" playsinline class="w-full h-full object-contain"></video>
             </div>
 
-            <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute inset-0 z-10" @click="toggleControls()"></div>
+
+            <div x-show="isPaused" class="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+                <div class="bg-black/40 rounded-full p-4 backdrop-blur-sm">
+                    <svg class="w-12 h-12 text-white/80" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+            </div>
+
+            <div class="absolute inset-0 pointer-events-none transition-opacity duration-300" :class="showControls ? 'opacity-100' : 'opacity-0'">
                 
                 <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-20 pointer-events-auto bg-gradient-to-b from-black/60 to-transparent">
                     <button @click="closePlayer()" class="text-white bg-black/20 p-2 rounded-full backdrop-blur-sm">
@@ -362,23 +422,40 @@
                     <button @click="showEpisodesModal = true" class="flex flex-col items-center gap-1 mt-2">
                          <div class="w-8 h-8 rounded bg-gray-800 border-2 border-white/50 flex items-center justify-center animate-pulse">
                              <span class="text-[8px] font-bold">EPS</span>
-                         </div>
-                     </button>
+                          </div>
+                      </button>
                 </div>
 
-                <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-auto pb-8">
-                    <div class="max-w-[80%]">
+                <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-auto pb-4">
+                    <div class="max-w-[80%] mb-3 relative z-30">
                         <h1 class="text-white font-bold text-base shadow-black drop-shadow-md mb-1" x-text="currentDrama.title"></h1>
                         <div class="flex items-center gap-2 mb-2">
                              <span class="bg-gray-800/80 px-2 py-0.5 rounded text-[10px] text-gray-200">Movie</span>
                              <span class="text-[10px] text-gray-300" x-text="'Ep ' + (currentEpIndex + 1) + ' dari ' + (currentDrama.episodes ? currentDrama.episodes.length : '?')"></span>
                         </div>
                         
-                        <div @click="showFullDesc = !showFullDesc" class="cursor-pointer">
+                        <div @click.stop="showFullDesc = !showFullDesc" class="cursor-pointer">
                             <p class="text-white/80 text-xs leading-snug transition-all" 
                                :class="showFullDesc ? '' : 'line-clamp-2'" 
                                x-text="currentDrama.description"></p>
                             <span class="text-xs font-bold text-gray-300 mt-1 block" x-text="showFullDesc ? 'Sembunyikan' : 'Selengkapnya'"></span>
+                        </div>
+                    </div>
+
+                    <div class="w-full flex flex-col gap-1 pb-4 relative z-50">
+                        <input type="range" 
+                               min="0" 
+                               :max="duration" 
+                               step="0.1"
+                               :value="currentTime"
+                               @input="scrubVideo($event)"
+                               @change="endScrub($event)"
+                               @touchstart.stop
+                               @mousedown.stop
+                               class="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer range-sm">
+                        <div class="flex justify-between text-[10px] text-white/80 px-1 font-mono">
+                            <span x-text="formatTime(currentTime)">00:00</span>
+                            <span x-text="formatTime(duration)">00:00</span>
                         </div>
                     </div>
                 </div>
@@ -441,12 +518,12 @@
             </div>
             <div class="flex-1 overflow-y-auto p-4 grid grid-cols-4 gap-3 content-start">
                 <template x-for="(ep, idx) in currentDrama.episodes" :key="ep.video_id">
-                     <button @click="playSpecificEpisode(ep, idx); showEpisodesModal = false" 
+                      <button @click="playSpecificEpisode(ep, idx); showEpisodesModal = false" 
                             class="aspect-square rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-sm font-bold relative hover:bg-gray-700 transition"
                             :class="currentEpIndex === idx ? 'border-red-600 text-red-500' : 'text-gray-300'">
                          <span x-text="ep.index"></span>
                          <div x-show="currentEpIndex === idx" class="absolute bottom-1 right-1 w-1.5 h-1.5 bg-red-600 rounded-full"></div>
-                     </button>
+                      </button>
                 </template>
             </div>
         </div>
@@ -485,8 +562,16 @@
                 showEpisodesModal: false,
                 showSettingsModal: false,
                 showHelpModal: false,
-                showFullDesc: false, // For Description Toggle
+                showFullDesc: false, 
                 currentQuality: 'HD',
+                showControls: true,
+                controlsTimeout: null,
+
+                // Player Controls
+                isPaused: true,
+                currentTime: 0,
+                duration: 0,
+                isSeeking: false,
 
                 // Swipe Logic
                 touchStartY: 0,
@@ -569,7 +654,6 @@
                     if (!likes) await this.dbSet('drama_likes', {});
                 },
 
-                // === PROFILE UPLOAD (Feature #3) ===
                 handleProfileUpload(event) {
                     const file = event.target.files[0];
                     if (!file) return;
@@ -589,7 +673,6 @@
                     reader.readAsDataURL(file);
                 },
 
-                // === SETTINGS FUNCTIONS (Feature #2) ===
                 clearCacheData() {
                     this.dataList = [];
                     this.notify("Cache data dibersihkan");
@@ -677,7 +760,7 @@
                     const id = this.currentDrama.series_id;
                     const cData = {
                         user: this.currentUser.username,
-                        avatar: this.currentUser.avatar || null, // Save Avatar Link
+                        avatar: this.currentUser.avatar || null,
                         text: this.newComment,
                         time: new Date().toLocaleTimeString('id-ID').slice(0,5)
                     };
@@ -703,7 +786,11 @@
                     this.isWatching = true;
                     this.currentDrama = { ...drama, episodes: [] }; 
                     this.currentLinks = null; 
-                    this.showFullDesc = false; // Reset desc toggle
+                    this.showFullDesc = false;
+                    this.isPaused = true;
+                    this.currentTime = 0;
+                    this.duration = 0;
+                    this.showControls = true; // Show controls on start
                     
                     this.loadComments(drama.series_id);
                     this.loadLikesCount(drama.series_id);
@@ -715,8 +802,30 @@
                     if(!this.playerInstance) {
                         this.playerInstance = new Plyr('#player', { 
                             controls: [], 
-                            clickToPlay: true,
+                            clickToPlay: false, 
                             fullscreen: { enabled: false }
+                        });
+                        
+                        this.playerInstance.on('timeupdate', (event) => {
+                            if(!this.isSeeking) {
+                                this.currentTime = event.detail.plyr.currentTime;
+                            }
+                        });
+                        this.playerInstance.on('loadedmetadata', (event) => {
+                            this.duration = event.detail.plyr.duration;
+                        });
+                        this.playerInstance.on('play', () => {
+                            this.isPaused = false;
+                            this.resetControlsTimeout();
+                        });
+                        this.playerInstance.on('pause', () => {
+                            this.isPaused = true;
+                            this.showControls = true;
+                        });
+                        this.playerInstance.on('ended', () => {
+                            this.isPaused = true;
+                            this.showControls = true;
+                            this.playNextEpisode();
                         });
                     }
 
@@ -731,9 +840,82 @@
                     } catch(e) {}
                 },
 
+                // === FUNGSI KONTROL UI OTOMATIS HILANG ===
+                toggleControls() {
+                    this.showControls = !this.showControls;
+                    if(this.showControls) {
+                        this.resetControlsTimeout();
+                    } else {
+                        clearTimeout(this.controlsTimeout);
+                    }
+                    
+                    // Logic toggle play jika user klik layar saat controls aktif
+                    if(!this.showControls && !this.isPaused) {
+                       // Do nothing, just hide controls
+                    } else if (this.showControls && !this.isPaused) {
+                       // Controls appeared, video still playing
+                    }
+                },
+
+                resetControlsTimeout() {
+                    clearTimeout(this.controlsTimeout);
+                    this.controlsTimeout = setTimeout(() => {
+                        if(!this.isPaused) {
+                            this.showControls = false;
+                        }
+                    }, 3000); // Hilang dalam 3 detik
+                },
+
+                togglePlay() {
+                    if (this.playerInstance.playing) {
+                        this.playerInstance.pause();
+                        this.showControls = true;
+                        clearTimeout(this.controlsTimeout);
+                    } else {
+                        this.playerInstance.play();
+                        this.showControls = true;
+                        this.resetControlsTimeout();
+                    }
+                },
+
+                // === PERBAIKAN PROGRESS BAR ===
+                scrubVideo(event) {
+                    this.isSeeking = true;
+                    // Hanya update tampilan angka, jangan update video dulu
+                    this.currentTime = parseFloat(event.target.value); 
+                },
+
+                endScrub(event) {
+                    const time = parseFloat(event.target.value);
+                    if(isFinite(time)) {
+                        this.playerInstance.currentTime = time;
+                    }
+                    
+                    // Delay sedikit agar event timeupdate tidak menimpa posisi slider seketika
+                    setTimeout(() => {
+                        this.isSeeking = false; 
+                    }, 200);
+                    
+                    if(this.isPaused) this.playerInstance.play();
+                    this.resetControlsTimeout();
+                },
+
+                formatTime(seconds) {
+                    if (!seconds) return "00:00";
+                    const m = Math.floor(seconds / 60);
+                    const s = Math.floor(seconds % 60);
+                    return `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+                },
+
                 async playSpecificEpisode(ep, idx) {
                     this.currentEpIndex = idx;
                     this.notify("Memuat Ep " + ep.index + "...");
+                    
+                    // Reset State
+                    this.isPaused = true;
+                    this.currentTime = 0;
+                    this.showControls = true;
+
                     try {
                         const res = await fetch(`/api/stream?video_id=${ep.video_id}`);
                         const json = await res.json();
@@ -747,6 +929,7 @@
                                 sources: [{ src: bestSrc, type: 'video/mp4' }]
                             };
                             this.playerInstance.play();
+                            this.resetControlsTimeout();
                         }
                     } catch(e) { this.notify("Video error"); }
                 },
@@ -771,7 +954,7 @@
                     this.notify(`Resolusi: ${qualityKey}`);
                 },
 
-                // === SWIPE GESTURES FOR SCROLL ===
+                // === SWIPE GESTURES ===
                 handleTouchStart(e) {
                     this.touchStartY = e.changedTouches[0].screenY;
                 },
@@ -787,18 +970,27 @@
                         this.playPrevEpisode();
                     }
                 },
+                
+                // === PERBAIKAN BUG NEXT EPISODE ===
                 playNextEpisode() {
-                    if (this.currentEpIndex !== null && this.currentDrama.episodes && this.currentEpIndex < this.currentDrama.episodes.length - 1) {
+                    // Pastikan currentEpIndex dianggap angka
+                    const currentIndex = parseInt(this.currentEpIndex);
+                    
+                    if (currentIndex !== null && this.currentDrama.episodes && currentIndex < this.currentDrama.episodes.length - 1) {
                         this.notify("Scroll: Episode Selanjutnya");
-                        this.playSpecificEpisode(this.currentDrama.episodes[this.currentEpIndex + 1], this.currentEpIndex + 1);
+                        const nextIdx = currentIndex + 1;
+                        this.playSpecificEpisode(this.currentDrama.episodes[nextIdx], nextIdx);
                     } else {
                         this.notify("Sudah di episode terakhir");
                     }
                 },
                 playPrevEpisode() {
-                    if (this.currentEpIndex !== null && this.currentEpIndex > 0) {
+                    const currentIndex = parseInt(this.currentEpIndex);
+                    
+                    if (currentIndex !== null && currentIndex > 0) {
                         this.notify("Scroll: Episode Sebelumnya");
-                        this.playSpecificEpisode(this.currentDrama.episodes[this.currentEpIndex - 1], this.currentEpIndex - 1);
+                        const prevIdx = currentIndex - 1;
+                        this.playSpecificEpisode(this.currentDrama.episodes[prevIdx], prevIdx);
                     } else {
                         this.notify("Sudah di episode pertama");
                     }
