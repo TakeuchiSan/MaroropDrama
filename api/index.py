@@ -113,7 +113,7 @@ def home():
 
         # B. Bagian Infinite Scroll (Mengisi Home dengan keyword acak)
         try:
-            query_list = ['terkuat', 'super', 'tersembunyi', 'dewa', 'naga', 'kaisar', 'mewah', 'cinta', 'presiden', 'menantu' , 'kebangkitan','kekuatan','tak terbatas']
+            query_list = ['terkuat', 'super', 'tersembunyi', 'dewa', 'naga', 'kaisar', 'mewah', 'cinta', 'presiden', 'menantu' , 'kebangkitan','kekuatan','tak terbatas','reinkarnasi' , 'kuno' , 'abadi']
             selected_query = random.choice(query_list) # Pake random biar home variatif
             tiket = str(int(time.time() * 1000))
             
