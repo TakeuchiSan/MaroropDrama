@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, Response, stream_with_context
 import requests
 import json
 import base64
@@ -142,7 +142,7 @@ def home():
     except Exception as e: return jsonify({"status": "error", "message": str(e)}), 500
 
 
-# --- 2. API SEARCH (FITUR BARU: Pencarian Input Asli) ---
+# --- 2. API SEARCH (FITUR: Pencarian & Kategori Discover) ---
 @app.route('/api/search', methods=['GET'])
 def search():
     # Ambil query dari parameter URL ?q=judul
@@ -162,7 +162,7 @@ def search():
             "IsFetchDebug": "false",
             "offset": "0",
             "cancel_search_category_enhance": "false",
-            "query": query, # INPUT ASLI USER
+            "query": query, # INPUT ASLI USER (Bisa Judul atau Kategori)
             "limit": '20', 
             "search_id": "",
             "_rticket": tiket,
@@ -215,6 +215,7 @@ def stream():
         data = {"biz_param": {"detail_page_version": 0, "device_level": 3, "from_video_id": "", "need_all_video_definition": True, "need_mp4_align": False, "source": 4, "use_os_player": False, "video_id_type": 0, "video_platform": 3}, "video_id": video_id}
         o = requests.post(urlc, headers=h, params=params, json=data).json()['data']['video_model']
         oso = json.loads(o)['video_list']
+        # Mengembalikan link asli (akan digunakan oleh proxy download atau player)
         links = {
             "720p": decode_b64(oso.get('video_5', {}).get('main_url')),
             "540p": decode_b64(oso.get('video_4', {}).get('main_url')),
@@ -224,6 +225,39 @@ def stream():
         }
         return jsonify({"status": "success", "data": links})
     except Exception as e: return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# --- 5. API DOWNLOAD PROXY (FITUR BARU: Download Backend) ---
+@app.route('/api/download', methods=['GET'])
+def proxy_download():
+    """
+    Endpoint ini bertugas mengambil file video dari server aslinya 
+    dan meneruskannya ke user sebagai file download.
+    User -> Server Flask -> Server Video
+    """
+    video_url = request.args.get('url')
+    filename = request.args.get('filename', 'video.mp4')
+    
+    if not video_url:
+        return "Missing URL", 400
+
+    try:
+        # Request ke source video secara streaming
+        req = requests.get(video_url, stream=True, timeout=10)
+        
+        # Generator untuk mengalirkan data chunk-by-chunk agar RAM server tidak penuh
+        def generate():
+            for chunk in req.iter_content(chunk_size=4096):
+                if chunk:
+                    yield chunk
+
+        # Return sebagai attachment agar browser langsung download
+        return Response(stream_with_context(generate()), headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Content-Type": req.headers.get('Content-Type', 'video/mp4')
+        })
+    except Exception as e:
+        return f"Download Failed: {str(e)}", 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=3000)
