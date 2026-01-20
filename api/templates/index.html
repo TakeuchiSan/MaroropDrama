@@ -14,7 +14,7 @@
     <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -29,6 +29,7 @@
             color: #fff; 
             font-family: 'Plus Jakarta Sans', sans-serif;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -65,37 +66,46 @@
         /* Glassmorphism Classes */
         .glass-panel {
             background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         
         .glass-nav {
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 60%, transparent 100%);
             backdrop-filter: blur(4px);
         }
 
         /* Custom Range Slider */
         input[type=range] {
             -webkit-appearance: none;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.3);
             height: 4px; 
             border-radius: 2px;
             width: 100%;
+            transition: height 0.2s;
         }
+        input[type=range]:active { height: 6px; }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 14px;
-            width: 14px;
+            height: 12px;
+            width: 12px;
             border-radius: 50%;
             background: var(--primary);
             box-shadow: 0 0 10px var(--primary);
-            margin-top: -5px; 
+            margin-top: -4px; 
+            transition: transform 0.1s;
+        }
+        input[type=range]:active::-webkit-slider-thumb { transform: scale(1.5); }
+
+        /* Snappy Animation for TikTok feel */
+        .snap-transition {
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); /* Ease Out Quart - Snappy */
         }
 
-        /* Center Play Button Animation */
+        /* Ping Center Animation */
         .ping-center {
-            animation: ping-scale 0.6s cubic-bezier(0, 0, 0.2, 1) forwards;
+            animation: ping-scale 0.5s cubic-bezier(0, 0, 0.2, 1) forwards;
         }
         @keyframes ping-scale {
             0% { transform: scale(0.5); opacity: 0; }
@@ -103,26 +113,19 @@
             100% { transform: scale(1); opacity: 0; }
         }
 
-        /* Toast Notification Dynamic Island Style */
         .toast-island {
             transform: translateY(-150%);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .toast-show {
-            transform: translateY(20px);
-        }
+        .toast-show { transform: translateY(20px); }
         
-        /* Chat Bubble Animation */
-        .chat-enter {
-            animation: chatPop 0.3s ease-out forwards;
-        }
-        @keyframes chatPop {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+        .category-scroll {
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
         }
     </style>
 </head>
-<body class="antialiased pb-20 select-none" x-data="dramaApp()">
+<body class="antialiased pb-20 select-none bg-black text-white" x-data="dramaApp()">
 
     <div class="fixed top-0 left-0 right-0 z-[110] flex justify-center pointer-events-none">
         <div :class="notification.show ? 'toast-show' : ''" 
@@ -132,31 +135,45 @@
         </div>
     </div>
 
-    <nav x-show="activeTab === 'home' && !isWatching" class="fixed top-0 w-full z-40 glass-nav px-5 py-4 flex justify-between items-center transition-all">
-        <div class="flex items-center gap-2">
-            <div class="relative w-8 h-8">
-                <div class="absolute inset-0 bg-gradient-to-r from-pink-500 to-violet-600 rounded-lg blur opacity-75"></div>
-                <div class="relative bg-black rounded-lg w-full h-full flex items-center justify-center border border-white/10">
-                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+    <nav x-show="activeTab === 'home' && !isWatching" class="fixed top-0 w-full z-40 bg-gradient-to-b from-black via-black/90 to-transparent pb-4 transition-all">
+        <div class="px-5 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="relative w-8 h-8">
+                    <div class="absolute inset-0 bg-gradient-to-r from-pink-500 to-violet-600 rounded-lg blur opacity-75"></div>
+                    <div class="relative bg-black rounded-lg w-full h-full flex items-center justify-center border border-white/10">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <span class="font-extrabold text-xl tracking-tight text-white">
+                    Drama<span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500">Hub</span>
+                </span>
+            </div>
+            
+            <div @click="activeTab = 'account'" class="w-9 h-9 rounded-full p-[1px] bg-gradient-to-br from-pink-500 to-violet-500 cursor-pointer active:scale-95 transition">
+                <div class="w-full h-full rounded-full overflow-hidden bg-black">
+                    <template x-if="currentUser && currentUser.avatar">
+                        <img :src="currentUser.avatar" class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="!currentUser || !currentUser.avatar">
+                        <div class="w-full h-full flex items-center justify-center bg-gray-900 text-xs font-bold">
+                            <span x-text="currentUser ? currentUser.username.substring(0,1).toUpperCase() : '?'"></span>
+                        </div>
+                    </template>
                 </div>
             </div>
-            <span class="font-extrabold text-xl tracking-tight text-white">
-                Drama<span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500">Hub</span>
-            </span>
         </div>
-        
-        <div @click="activeTab = 'account'" class="w-9 h-9 rounded-full p-[1px] bg-gradient-to-br from-pink-500 to-violet-500 cursor-pointer">
-            <div class="w-full h-full rounded-full overflow-hidden bg-black">
-                <template x-if="currentUser && currentUser.avatar">
-                    <img :src="currentUser.avatar" class="w-full h-full object-cover">
-                </template>
-                <template x-if="!currentUser || !currentUser.avatar">
-                    <div class="w-full h-full flex items-center justify-center bg-gray-900 text-xs font-bold">
-                        <span x-text="currentUser ? currentUser.username.substring(0,1).toUpperCase() : '?'"></span>
-                    </div>
+
+        <div class="w-full overflow-x-auto no-scrollbar px-4 pb-2">
+            <div class="flex gap-2 min-w-max">
+                <template x-for="cat in categories" :key="cat">
+                    <button @click="selectCategory(cat)" 
+                            class="px-4 py-1.5 rounded-full text-[11px] font-bold border border-white/10 backdrop-blur-md transition active:scale-95"
+                            :class="searchQuery === cat ? 'bg-pink-600 text-white border-pink-500' : 'bg-white/5 text-gray-300 hover:bg-white/10'">
+                        <span x-text="cat"></span>
+                    </button>
                 </template>
             </div>
         </div>
@@ -214,98 +231,9 @@
         </div>
     </div>
 
-    <div x-show="showHelpModal" class="fixed inset-0 z-[85] bg-black/80 backdrop-blur flex items-center justify-center px-4" x-transition.opacity style="display: none;">
-        <div class="glass-panel w-full max-w-sm p-6 rounded-3xl" @click.outside="showHelpModal = false">
-            <h2 class="text-xl font-bold mb-4 text-white">Pusat Bantuan</h2>
-            
-            <div class="space-y-4 mb-6">
-                <button @click="showHelpModal = false; showChatModal = true" class="w-full py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center gap-2 text-white font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                    <span>Tanya AI Assistant</span>
-                </button>
-
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Hubungi Admin</p>
-                <div class="grid grid-cols-2 gap-3">
-                    <a href="https://t.me/blank" target="_blank" class="flex flex-col items-center justify-center p-3 bg-[#0088cc]/20 border border-[#0088cc]/50 rounded-xl text-[#0088cc] hover:bg-[#0088cc] hover:text-white transition">
-                        <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                        <span class="text-xs font-bold">Telegram</span>
-                    </a>
-                    <a href="https://wa.me/blank" target="_blank" class="flex flex-col items-center justify-center p-3 bg-[#25D366]/20 border border-[#25D366]/50 rounded-xl text-[#25D366] hover:bg-[#25D366] hover:text-white transition">
-                        <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.248-.57-.397m-5.475 7.616h-.006c-1.96 0-3.879-.529-5.542-1.514l-.397-.236-4.118 1.08 1.102-4.013-.257-.41a9.907 9.907 0 0 1-1.517-5.293c0-5.467 4.449-9.916 9.924-9.916 2.651 0 5.145 1.032 7.02 2.908 1.874 1.875 2.905 4.37 2.905 7.025 0 5.467-4.448 9.915-9.914 9.915"/></svg>
-                        <span class="text-xs font-bold">WhatsApp</span>
-                    </a>
-                </div>
-
-                <div class="space-y-4 text-sm text-gray-300 mt-4 border-t border-gray-800 pt-4">
-                    <p class="text-xs font-bold uppercase text-gray-500">Panduan Player</p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">👆</div>
-                        <p>Tap layar 1x untuk <b>Pause/Play</b></p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">↕️</div>
-                        <p>Swipe Atas/Bawah untuk <b>Ganti Episode</b></p>
-                    </div>
-                </div>
-            </div>
-            <button @click="showHelpModal = false" class="w-full py-3 bg-gray-800 text-white rounded-xl font-bold text-sm">Tutup</button>
-        </div>
-    </div>
-
-    <div x-show="showChatModal" class="fixed inset-0 z-[90] bg-black/95 flex flex-col" x-transition.opacity style="display: none;">
-        <div class="bg-gray-900 p-4 flex items-center justify-between border-b border-gray-800">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center text-xl">🤖</div>
-                <div>
-                    <h3 class="font-bold text-white">AI Assistant</h3>
-                    <p class="text-[10px] text-green-400">Online</p>
-                </div>
-            </div>
-            <button @click="showChatModal = false" class="text-gray-400 hover:text-white">✕</button>
-        </div>
-        
-        <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chatContainer">
-            <div class="flex gap-3">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 shrink-0 flex items-center justify-center text-xs">AI</div>
-                <div class="bg-gray-800 rounded-2xl rounded-tl-none p-3 max-w-[80%] text-sm text-gray-200">
-                    Halo! Ada yang bisa saya bantu seputar drama atau aplikasi ini?
-                </div>
-            </div>
-            
-            <template x-for="chat in chatMessages" :key="chat.id">
-                <div class="flex gap-3" :class="chat.isUser ? 'flex-row-reverse' : ''">
-                    <div class="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs"
-                         :class="chat.isUser ? 'bg-pink-600' : 'bg-gradient-to-tr from-blue-500 to-cyan-400'">
-                         <span x-text="chat.isUser ? 'ME' : 'AI'"></span>
-                    </div>
-                    <div class="rounded-2xl p-3 max-w-[80%] text-sm chat-enter"
-                         :class="chat.isUser ? 'bg-pink-600 text-white rounded-tr-none' : 'bg-gray-800 text-gray-200 rounded-tl-none'">
-                        <p x-text="chat.text"></p>
-                    </div>
-                </div>
-            </template>
-            
-            <div x-show="isChatThinking" class="flex gap-3">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 shrink-0 flex items-center justify-center text-xs">AI</div>
-                <div class="bg-gray-800 rounded-2xl rounded-tl-none p-3">
-                    <div class="flex gap-1"><div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div><div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div><div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <div class="flex items-center gap-2 bg-black rounded-full px-4 py-2 border border-gray-700">
-                <input type="text" x-model="chatInput" @keydown.enter="sendMessage()" placeholder="Tulis pesan..." class="flex-1 bg-transparent text-sm text-white focus:outline-none">
-                <button @click="sendMessage()" class="text-blue-400 font-bold p-1">
-                    <svg class="w-5 h-5 transform rotate-90" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <main class="min-h-screen pb-24">
         
-        <div x-show="activeTab === 'home' && !isWatching" class="pt-24 px-4">
+        <div x-show="activeTab === 'home' && !isWatching" class="pt-32 px-4">
             <div class="flex items-center gap-2 mb-6">
                 <div class="w-1 h-6 bg-pink-500 rounded-full"></div>
                 <h2 class="text-lg font-bold text-white">Trending Now</h2>
@@ -313,12 +241,12 @@
             
             <div class="grid grid-cols-3 gap-3 md:gap-4">
                 <template x-for="(drama, index) in dataList" :key="drama.series_id">
-                    <div @click="startWatching(drama)" class="relative group cursor-pointer">
-                        <div class="aspect-[2/3] rounded-xl overflow-hidden relative shadow-lg bg-gray-800 transform transition-all duration-300 group-active:scale-95">
+                    <div @click="startWatching(drama)" class="relative group cursor-pointer active:scale-95 transition-transform duration-200">
+                        <div class="aspect-[2/3] rounded-xl overflow-hidden relative shadow-lg bg-gray-900 border border-white/5">
                             <div :id="'skel-home-'+index" class="absolute inset-0 animate-pulse bg-gray-800"></div>
                             <img :id="'img-home-'+index" x-init="addToQueue($el, drama.thumbnail, 'skel-home-'+index)" class="w-full h-full object-cover opacity-0 transition-opacity duration-700" src="" alt="Poster">
                             
-                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
                             
                             <div class="absolute top-2 left-2 flex flex-col gap-1">
                                 <template x-if="drama.type === 'recommended'">
@@ -359,7 +287,7 @@
             
             <div x-show="!isSearching && searchResults.length > 0" class="grid grid-cols-3 gap-3 mt-8">
                 <template x-for="(drama, index) in searchResults" :key="index">
-                    <div @click="startWatching(drama)" class="cursor-pointer group">
+                    <div @click="startWatching(drama)" class="cursor-pointer group active:scale-95 transition-transform">
                         <div class="aspect-[2/3] rounded-xl overflow-hidden relative shadow-lg bg-gray-800">
                             <div :id="'skel-search-'+index" class="absolute inset-0 animate-pulse bg-gray-800"></div>
                             <img :id="'img-search-'+index" 
@@ -388,7 +316,7 @@
             </div>
             <div class="grid grid-cols-3 gap-3">
                 <template x-for="(drama, index) in myList" :key="drama.series_id">
-                    <div @click="startWatching(drama)" class="cursor-pointer">
+                    <div @click="startWatching(drama)" class="cursor-pointer active:scale-95 transition-transform">
                         <div class="aspect-[2/3] rounded-xl overflow-hidden relative border border-gray-800 bg-gray-800">
                              <div :id="'skel-list-'+index" class="absolute inset-0 animate-pulse bg-gray-800"></div>
                              <img :id="'img-list-'+index" 
@@ -403,12 +331,10 @@
         </div>
 
         <div x-show="activeTab === 'account' && !isWatching" class="pt-24 px-6 text-center">
-            
             <div class="relative w-28 h-28 mx-auto mb-4 group">
                 <div class="absolute -inset-1 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-500"></div>
                 <div @click="currentUser ? $refs.fileInput.click() : null" 
                      class="w-full h-full bg-gray-900 rounded-full flex items-center justify-center border-2 border-gray-800 overflow-hidden cursor-pointer relative z-10">
-                    
                     <template x-if="currentUser && currentUser.avatar">
                         <img :src="currentUser.avatar" class="w-full h-full object-cover">
                     </template>
@@ -429,24 +355,22 @@
                     <span class="w-1 h-4 bg-pink-500 rounded-full"></span>
                     Riwayat Tontonan
                 </h3>
-                
                 <div x-show="watchHistory.length === 0" class="text-xs text-gray-500 py-4 italic">Belum ada riwayat tontonan.</div>
-                
                 <div class="flex overflow-x-auto gap-3 pb-4 no-scrollbar">
-                     <template x-for="(hist, index) in watchHistory" :key="hist.series_id">
-                         <div @click="startWatching(hist)" class="flex-shrink-0 w-24 cursor-pointer">
-                             <div class="aspect-[2/3] rounded-lg overflow-hidden relative bg-gray-800 border border-gray-700">
-                                 <div :id="'skel-hist-'+index" class="absolute inset-0 animate-pulse bg-gray-800"></div>
-                                 <img :id="'img-hist-'+index" 
-                                      x-init="addToQueue($el, hist.thumbnail, 'skel-hist-'+index)" 
-                                      class="w-full h-full object-cover opacity-0 transition-opacity duration-700" src="">
-                                 <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                                     <svg class="w-6 h-6 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                 </div>
-                             </div>
-                             <p class="text-[9px] font-medium text-gray-400 mt-1 truncate" x-text="hist.title"></p>
-                         </div>
-                     </template>
+                      <template x-for="(hist, index) in watchHistory" :key="hist.series_id">
+                          <div @click="startWatching(hist)" class="flex-shrink-0 w-24 cursor-pointer active:scale-95 transition-transform">
+                              <div class="aspect-[2/3] rounded-lg overflow-hidden relative bg-gray-800 border border-gray-700">
+                                  <div :id="'skel-hist-'+index" class="absolute inset-0 animate-pulse bg-gray-800"></div>
+                                  <img :id="'img-hist-'+index" 
+                                       x-init="addToQueue($el, hist.thumbnail, 'skel-hist-'+index)" 
+                                       class="w-full h-full object-cover opacity-0 transition-opacity duration-700" src="">
+                                  <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                                      <svg class="w-6 h-6 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                  </div>
+                              </div>
+                              <p class="text-[9px] font-medium text-gray-400 mt-1 truncate" x-text="hist.title"></p>
+                          </div>
+                      </template>
                 </div>
             </div>
 
@@ -459,24 +383,16 @@
                     <span class="text-gray-600">›</span>
                 </button>
                 
-                <button @click="showHelpModal = true" class="w-full py-4 px-6 bg-gray-900/50 hover:bg-gray-800 rounded-2xl flex items-center justify-between transition border border-gray-800/50">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="text-sm font-bold text-gray-300">Bantuan</span>
-                    </div>
-                    <span class="text-gray-600">›</span>
-                </button>
+                <div class="mt-8">
+                    <template x-if="!currentUser">
+                        <button @click="showAuthModal=true; authMode='login'" class="w-full py-4 bg-gradient-to-r from-pink-600 to-violet-600 rounded-xl font-bold shadow-lg shadow-pink-900/20 text-sm">Masuk / Daftar</button>
+                    </template>
+                    <template x-if="currentUser">
+                         <button @click="logout()" class="text-red-500 font-bold text-sm py-4">Keluar Akun</button>
+                    </template>
+                </div>
             </div>
-
-            <div class="mt-8">
-                <template x-if="!currentUser">
-                    <button @click="showAuthModal=true; authMode='login'" class="w-full py-4 bg-gradient-to-r from-pink-600 to-violet-600 rounded-xl font-bold shadow-lg shadow-pink-900/20 text-sm">Masuk / Daftar</button>
-                </template>
-                <template x-if="currentUser">
-                     <button @click="logout()" class="text-red-500 font-bold text-sm py-4">Keluar Akun</button>
-                </template>
-            </div>
-            <p class="mt-8 text-[10px] text-gray-700 font-mono">DramaHub v1.0</p>
+            <p class="mt-8 text-[10px] text-gray-700 font-mono">DramaHub v1.1 - Premium</p>
         </div>
 
         <div x-show="isWatching" class="fixed inset-0 z-50 bg-black" 
@@ -491,29 +407,29 @@
                  @touchstart="handleTouchStart($event)"
                  @touchend="handleTouchEnd($event)">
                 
-                 <div class="w-full h-full transition-transform duration-300 ease-out"
+                <div class="w-full h-full snap-transition"
                       :style="`transform: translateY(${swipeOffset}px)`">
                     <video id="player" playsinline class="w-full h-full object-contain"></video>
-                 </div>
+                </div>
 
-                 <div class="absolute inset-0 z-10" @click="togglePlay()"></div>
+                <div class="absolute inset-0 z-10" @click="togglePlay()"></div>
 
-                 <div x-show="showCenterIcon" class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                     <div class="bg-black/50 p-6 rounded-full glass-panel ping-center">
-                         <template x-if="isPaused">
-                             <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                         </template>
-                         <template x-if="!isPaused">
-                            <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                         </template>
-                     </div>
-                 </div>
+                <div x-show="showCenterIcon" class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                    <div class="bg-black/50 p-6 rounded-full glass-panel ping-center">
+                        <template x-if="isPaused">
+                            <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </template>
+                        <template x-if="!isPaused">
+                           <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                        </template>
+                    </div>
+                </div>
             </div>
 
             <div class="absolute inset-0 pointer-events-none transition-opacity duration-300" :class="showControls ? 'opacity-100' : 'opacity-0'">
                 
-                <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-30 pointer-events-auto bg-gradient-to-b from-black/80 to-transparent">
-                    <button @click="closePlayer()" class="text-white p-2 rounded-full glass-panel active:scale-90 transition">
+                <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-30 pointer-events-auto bg-gradient-to-b from-black/80 to-transparent pb-10">
+                    <button @click="closePlayer()" class="text-white p-2 rounded-full glass-panel active:scale-90 transition hover:bg-white/10">
                          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
                     
@@ -528,7 +444,7 @@
                                     <button @click="changeQuality(quality); openSet=false" 
                                             class="block w-full text-right px-4 py-3 hover:bg-gray-800 text-xs font-bold text-white uppercase"
                                             :class="currentQuality === quality ? 'text-pink-500' : ''">
-                                        <span x-text="quality"></span>
+                                            <span x-text="quality"></span>
                                     </button>
                                 </template>
                             </template>
@@ -537,14 +453,13 @@
                 </div>
 
                 <div class="absolute right-2 bottom-24 flex flex-col items-center gap-6 z-30 pointer-events-auto pb-4">
-                    <div class="relative mb-2">
-                        <div class="w-10 h-10 rounded-full border border-white bg-gray-800 overflow-hidden shadow-lg">
-                             <img :src="currentDrama.thumbnail" class="w-full h-full object-cover opacity-80">
+                    
+                    <button @click="showDownloadModal = true" class="flex flex-col items-center gap-1 group">
+                        <div class="p-2.5 rounded-full bg-black/40 backdrop-blur-sm transition-transform active:scale-75 group-hover:bg-black/60">
+                            <svg class="w-7 h-7 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         </div>
-                        <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-pink-600 rounded-full p-0.5 shadow">
-                            <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M12 4v16m8-8H4"></path></svg>
-                        </div>
-                    </div>
+                        <span class="text-white text-[10px] font-bold shadow-black drop-shadow-md">Unduh</span>
+                    </button>
 
                     <button @click="toggleLike()" class="flex flex-col items-center gap-1 group">
                         <div class="p-2.5 rounded-full bg-black/40 backdrop-blur-sm transition-transform active:scale-75 group-hover:bg-black/60">
@@ -553,32 +468,32 @@
                         <span class="text-white text-[10px] font-bold shadow-black drop-shadow-md" x-text="currentLikesCount"></span>
                     </button>
 
-                    <button @click="showCommentsModal = true" class="flex flex-col items-center gap-1">
+                    <button @click="showCommentsModal = true" class="flex flex-col items-center gap-1 active:scale-90 transition">
                         <div class="p-2.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60">
                              <svg class="w-7 h-7 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .89-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
                         </div>
                         <span class="text-white text-[10px] font-bold shadow-black drop-shadow-md" x-text="dramaComments.length"></span>
                     </button>
 
-                    <button @click="toggleMyList()" class="flex flex-col items-center gap-1">
+                    <button @click="toggleMyList()" class="flex flex-col items-center gap-1 active:scale-90 transition">
                         <div class="p-2.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60">
                              <svg class="w-7 h-7 drop-shadow-md" :class="isInList ? 'text-yellow-400 fill-current' : 'text-white'" fill="white" viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
                         </div>
                         <span class="text-white text-[10px] font-bold shadow-black drop-shadow-md">Simpan</span>
                     </button>
 
-                    <button @click="showEpisodesModal = true" class="flex flex-col items-center gap-1 mt-2">
+                    <button @click="showEpisodesModal = true" class="flex flex-col items-center gap-1 mt-2 active:scale-90 transition">
                           <div class="w-9 h-9 rounded-lg bg-gray-800/80 border border-white/30 backdrop-blur flex items-center justify-center animate-pulse">
                               <span class="text-[9px] font-extrabold text-white">EPS</span>
                            </div>
                       </button>
                 </div>
 
-                <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-auto pb-6">
+                <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-auto pb-6">
                     <div class="max-w-[80%] mb-4 relative z-30">
                         <h1 class="text-white font-extrabold text-lg shadow-black drop-shadow-md mb-1 leading-snug" x-text="currentDrama.title"></h1>
                         <div class="flex items-center gap-2 mb-2">
-                             <span class="bg-pink-600 px-2 py-0.5 rounded text-[10px] font-bold text-white">Movie</span>
+                             <span class="bg-pink-600 px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-sm">Movie</span>
                              <span class="text-xs text-gray-200 font-medium" x-text="'Episode ' + (currentEpIndex + 1)"></span>
                         </div>
                         
@@ -624,7 +539,7 @@
             
             <div class="flex-1 overflow-y-auto p-5 space-y-6">
                 <template x-for="com in dramaComments" :key="com.time + Math.random()">
-                    <div class="flex gap-3 animate-fade-in-up">
+                    <div class="flex gap-3">
                         <div class="shrink-0">
                             <template x-if="com.avatar">
                                 <img :src="com.avatar" class="w-9 h-9 rounded-full object-cover border border-gray-700">
@@ -654,7 +569,7 @@
         </div>
 
         <div x-show="showEpisodesModal" 
-             class="fixed bottom-0 left-0 w-full h-[50vh] bg-[#121212] rounded-t-3xl z-[60] flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-gray-800"
+             class="fixed bottom-0 left-0 w-full h-[60vh] bg-[#121212] rounded-t-3xl z-[60] flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-gray-800"
              x-transition:enter="transition ease-out duration-300" 
              x-transition:enter-start="translate-y-full" 
              x-transition:enter-end="translate-y-0"
@@ -662,24 +577,53 @@
              style="display: none;">
              
             <div class="w-12 h-1.5 bg-gray-700 rounded-full mx-auto mt-3 mb-2"></div>
-            <div class="flex justify-between items-center px-5 py-3 border-b border-gray-800/50">
-                <h3 class="font-bold text-sm text-white">Pilih Episode</h3>
+            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-800/50 bg-[#121212]">
+                <div>
+                    <h3 class="font-bold text-lg text-white">Daftar Episode</h3>
+                    <p class="text-xs text-gray-500" x-text="currentDrama.title"></p>
+                </div>
+                <span class="text-xs font-bold bg-pink-600/20 text-pink-500 px-2 py-1 rounded" x-text="currentDrama.episodes ? currentDrama.episodes.length + ' Eps' : '0'"></span>
             </div>
-            <div class="flex-1 overflow-y-auto p-5 grid grid-cols-4 gap-3 content-start">
+            <div class="flex-1 overflow-y-auto p-5 grid grid-cols-4 gap-3 content-start bg-[#0a0a0a]">
                 <template x-for="(ep, idx) in currentDrama.episodes" :key="ep.video_id">
                       <button @click="playSpecificEpisode(ep, idx); showEpisodesModal = false" 
-                            class="aspect-square rounded-xl bg-gray-800 border border-gray-700 flex flex-col items-center justify-center text-sm font-bold relative hover:bg-gray-700 transition group"
-                            :class="currentEpIndex === idx ? 'border-pink-500 text-pink-500 bg-pink-500/10' : 'text-gray-300'">
-                         <span class="text-xs font-normal text-gray-500 mb-1">Ep</span>
-                         <span class="text-lg" x-text="ep.index"></span>
-                         <div x-show="currentEpIndex === idx" class="absolute inset-0 border-2 border-pink-500 rounded-xl"></div>
+                              class="aspect-square rounded-2xl flex flex-col items-center justify-center text-sm font-bold relative transition group border"
+                              :class="currentEpIndex === idx ? 'bg-pink-600 border-pink-500 text-white shadow-[0_0_15px_rgba(236,72,153,0.4)]' : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700'">
+                         <span class="text-[10px] font-medium opacity-70 mb-0.5">Eps</span>
+                         <span class="text-xl tracking-tighter" x-text="ep.index"></span>
+                         
                          <div x-show="currentEpIndex === idx && !isPaused" class="absolute bottom-2 flex gap-0.5 items-end h-2">
-                             <div class="w-0.5 bg-pink-500 animate-[bounce_1s_infinite] h-2"></div>
-                             <div class="w-0.5 bg-pink-500 animate-[bounce_1.2s_infinite] h-1.5"></div>
-                             <div class="w-0.5 bg-pink-500 animate-[bounce_0.8s_infinite] h-2.5"></div>
+                             <div class="w-0.5 bg-white animate-[bounce_1s_infinite] h-2"></div>
+                             <div class="w-0.5 bg-white animate-[bounce_1.2s_infinite] h-1.5"></div>
+                             <div class="w-0.5 bg-white animate-[bounce_0.8s_infinite] h-2.5"></div>
                          </div>
                       </button>
                 </template>
+            </div>
+        </div>
+
+        <div x-show="showDownloadModal" 
+             class="fixed bottom-0 left-0 w-full bg-[#121212] rounded-t-3xl z-[70] flex flex-col shadow-2xl border-t border-gray-800 pb-10"
+             x-transition:enter="transition ease-out duration-300" 
+             x-transition:enter-start="translate-y-full" 
+             x-transition:enter-end="translate-y-0"
+             @click.outside="showDownloadModal = false"
+             style="display: none;">
+             
+            <div class="w-12 h-1.5 bg-gray-700 rounded-full mx-auto mt-3 mb-4"></div>
+            <h3 class="font-bold text-center text-white mb-6">Pilih Kualitas Download</h3>
+            
+            <div class="px-6 space-y-3">
+                <template x-if="currentLinks">
+                    <template x-for="quality in Object.keys(currentLinks).reverse()" :key="quality">
+                        <button @click="downloadVideo(quality)" 
+                                class="w-full py-4 bg-gray-800 hover:bg-gray-700 rounded-xl flex justify-between px-6 text-white font-bold transition">
+                                <span x-text="quality"></span>
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        </button>
+                    </template>
+                </template>
+                <button @click="showDownloadModal = false" class="w-full py-3 mt-4 text-gray-500 font-bold text-sm">Batal</button>
             </div>
         </div>
 
@@ -717,18 +661,17 @@
             return {
                 activeTab: 'home',
                 isWatching: false,
-                detailTab: 'eps',
                 isLoading: false,
                 
                 showCommentsModal: false,
                 showEpisodesModal: false,
                 showSettingsModal: false,
-                showHelpModal: false,
+                showDownloadModal: false,
                 showAuthModal: false,
-                showChatModal: false,
                 
                 showFullDesc: false, 
                 currentQuality: 'HD',
+                preferredQuality: localStorage.getItem('prefQual') || '720p', // Persistensi Resolusi
                 showControls: true,
                 controlsTimeout: null,
                 showCenterIcon: false, 
@@ -782,59 +725,37 @@
                 imageQueue: [],
                 isProcessingQueue: false,
 
-                // Chatbot State
-                chatInput: '',
-                isChatThinking: false,
-                chatMessages: [
-                    { id: 1, text: "Saya asisten virtual DramaHub. Tanyakan rekomendasi atau bantuan teknis!", isUser: false }
-                ],
+                // Kategori
+                categories: ['Reinkarnasi', 'Terkuat', 'Dewa', 'Kerajaan', 'Modern', 'Romance', 'Action'],
 
                 init() {
                     this.loadHome();
                     this.setupScroll();
                     this.checkDbInit();
                     
-                    // --- FITUR BARU: TOMBOL BACK HP ---
-                    // Set state awal agar tidak langsung keluar
                     history.replaceState({ view: 'home' }, '', '');
-
-                    // Handler ketika tombol back ditekan
                     window.onpopstate = (event) => {
-                        // 1. Jika sedang nonton, tutup player
                         if (this.isWatching) {
-                            this.isWatching = false;
-                            if(this.playerInstance) this.playerInstance.stop();
+                            this.closePlayer();
                             return;
                         }
-
-                        // 2. Jika ada Modal yang terbuka, tutup modal
-                        const modals = ['showCommentsModal', 'showEpisodesModal', 'showSettingsModal', 'showHelpModal', 'showChatModal', 'showAuthModal'];
+                        const modals = ['showCommentsModal', 'showEpisodesModal', 'showSettingsModal', 'showDownloadModal', 'showAuthModal'];
                         let modalClosed = false;
                         for(let m of modals) {
-                            if(this[m]) { 
-                                this[m] = false; 
-                                modalClosed = true; 
-                                break; // Tutup satu per satu
-                            }
+                            if(this[m]) { this[m] = false; modalClosed = true; break; }
                         }
                         if(modalClosed) return;
-
-                        // 3. Jika sedang di tab lain (misal Search/Akun), kembali ke Home
                         if (this.activeTab !== 'home') {
                             this.activeTab = 'home';
-                            // Push state lagi supaya kalau tekan back lagi baru keluar
                             history.pushState({ view: 'home' }, '', ''); 
                             return;
                         }
                     };
 
-                    // Watcher untuk Modals agar otomatis nambah history saat dibuka
-                    const modals = ['showCommentsModal', 'showEpisodesModal', 'showSettingsModal', 'showHelpModal', 'showChatModal', 'showAuthModal'];
+                    const modals = ['showCommentsModal', 'showEpisodesModal', 'showSettingsModal', 'showDownloadModal', 'showAuthModal'];
                     modals.forEach(key => {
                         this.$watch(key, (value) => {
-                            if (value) {
-                                history.pushState({ modal: key }, '', '');
-                            }
+                            if (value) history.pushState({ modal: key }, '', '');
                         });
                     });
                 },
@@ -843,6 +764,12 @@
                     this.notification.message = msg;
                     this.notification.show = true;
                     setTimeout(() => { this.notification.show = false; }, 3000);
+                },
+
+                selectCategory(cat) {
+                    this.searchQuery = cat;
+                    this.activeTab = 'search';
+                    this.doSearch();
                 },
 
                 async dbGet(key) {
@@ -891,7 +818,6 @@
                     this.dataList = [];
                     this.notify("Cache data dibersihkan");
                     setTimeout(() => { this.loadHome(); }, 500);
-                    // Gunakan history.back() agar sinkron dengan tombol back HP
                     history.back(); 
                 },
 
@@ -921,7 +847,7 @@
                             this.notify("Info Akun Berhasil Diubah!");
                             this.newUsername = '';
                             this.newPassword = '';
-                            history.back(); // Tutup modal settings
+                            history.back();
                         }
                     } catch (e) {
                         this.notify("Gagal update akun");
@@ -949,7 +875,7 @@
                                 if(localUser && localUser.username === user.username && localUser.avatar) { user.avatar = localUser.avatar; }
                                 this.currentUser = user;
                                 localStorage.setItem('userSession', JSON.stringify(user));
-                                history.back(); // Tutup modal auth
+                                history.back();
                                 this.notify(`Welcome Back, ${user.username}`);
                             } else {
                                 this.notify("Username/Password salah");
@@ -963,34 +889,6 @@
                     this.currentUser = null;
                     localStorage.removeItem('userSession');
                     this.notify("Logout berhasil");
-                },
-
-                async sendMessage() {
-                    if(!this.chatInput.trim()) return;
-                    this.chatMessages.push({ id: Date.now(), text: this.chatInput, isUser: true });
-                    const userQuery = this.chatInput;
-                    this.chatInput = '';
-                    this.$nextTick(() => {
-                        const container = document.getElementById('chatContainer');
-                        container.scrollTop = container.scrollHeight;
-                    });
-                    this.isChatThinking = true;
-                    setTimeout(() => {
-                        let reply = "Maaf, saya sedang offline saat ini. Coba lagi nanti.";
-                        const q = userQuery.toLowerCase();
-                        if(q.includes('halo') || q.includes('hi')) reply = "Halo! Mau nonton apa hari ini?";
-                        else if(q.includes('rekomendasi')) reply = "Saya sarankan cek bagian 'Trending Now' di halaman depan!";
-                        else if(q.includes('error') || q.includes('rusak')) reply = "Coba gunakan tombol 'Hapus Cache' di pengaturan.";
-                        else if(q.includes('admin') || q.includes('wa')) reply = "Silakan hubungi admin melalui menu Bantuan > WhatsApp.";
-                        else reply = "Menarik! Saya masih belajar, tapi saya sarankan kamu tonton drama terbaru di beranda.";
-
-                        this.chatMessages.push({ id: Date.now()+1, text: reply, isUser: false });
-                        this.isChatThinking = false;
-                        this.$nextTick(() => {
-                            const container = document.getElementById('chatContainer');
-                            container.scrollTop = container.scrollHeight;
-                        });
-                    }, 1500);
                 },
 
                 async doSearch() {
@@ -1055,9 +953,7 @@
                 },
 
                 async startWatching(drama) {
-                    // PUSH HISTORY SAAT MULAI NONTON
                     history.pushState({ view: 'player' }, '', '#player');
-
                     this.isWatching = true;
                     this.currentDrama = { ...drama, episodes: [] }; 
                     this.currentLinks = null; 
@@ -1078,6 +974,7 @@
                     
                     this.showCommentsModal = false;
                     this.showEpisodesModal = false;
+                    this.showDownloadModal = false;
 
                     if(!this.playerInstance) {
                         this.playerInstance = new Plyr('#player', { 
@@ -1183,8 +1080,19 @@
                         const json = await res.json();
                         if(json.status === 'success') {
                             this.currentLinks = json.data;
-                            const bestSrc = this.currentLinks['720p'] || this.currentLinks['480p'] || Object.values(this.currentLinks)[0];
-                            this.currentQuality = '720p';
+                            
+                            // LOGIC PERSISTENSI RESOLUSI
+                            // Cek apakah resolusi tersimpan ada di link yang tersedia
+                            let bestSrc;
+                            if (this.currentLinks[this.preferredQuality]) {
+                                bestSrc = this.currentLinks[this.preferredQuality];
+                                this.currentQuality = this.preferredQuality;
+                            } else {
+                                // Fallback jika resolusi tidak ada
+                                bestSrc = this.currentLinks['720p'] || this.currentLinks['480p'] || Object.values(this.currentLinks)[0];
+                                this.currentQuality = '720p'; // Default visual
+                            }
+
                             this.playerInstance.source = {
                                 type: 'video',
                                 title: this.currentDrama.title,
@@ -1200,7 +1108,11 @@
                     if(!this.currentLinks || !this.currentLinks[qualityKey]) return;
                     const currentTime = this.playerInstance.currentTime;
                     const isPlaying = this.playerInstance.playing;
+                    
                     this.currentQuality = qualityKey;
+                    this.preferredQuality = qualityKey; // Simpan Pilihan
+                    localStorage.setItem('prefQual', qualityKey); // Simpan ke LocalStorage
+
                     this.playerInstance.source = {
                         type: 'video',
                         title: this.currentDrama.title,
@@ -1213,6 +1125,30 @@
                     this.notify(`Quality: ${qualityKey}`);
                 },
 
+                downloadVideo(quality) {
+                    if (!this.currentLinks || !this.currentLinks[quality]) return;
+                    
+                    const link = this.currentLinks[quality];
+                    // Create invisible anchor link
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = link;
+                    // Naming file
+                    const safeTitle = this.currentDrama.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    a.download = `dramahub_${safeTitle}_ep${this.currentEpIndex+1}_${quality}.mp4`;
+                    
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // Untuk mobile kadang butuh target blank jika download attribute tidak support
+                    setTimeout(() => {
+                        window.open(link, '_blank');
+                        document.body.removeChild(a);
+                        this.showDownloadModal = false;
+                        this.notify("Download dimulai...");
+                    }, 100);
+                },
+
                 handleTouchStart(e) {
                     this.touchStartY = e.changedTouches[0].screenY;
                 },
@@ -1221,7 +1157,7 @@
                     this.handleSwipe();
                 },
                 handleSwipe() {
-                    const threshold = 60; 
+                    const threshold = 50; 
                     const diff = this.touchStartY - this.touchEndY;
                     if (diff > threshold) {
                         this.playNextEpisode();
@@ -1233,25 +1169,27 @@
                 playNextEpisode() {
                     const currentIndex = parseInt(this.currentEpIndex);
                     if (currentIndex !== null && this.currentDrama.episodes && currentIndex < this.currentDrama.episodes.length - 1) {
-                        this.swipeOffset = -100; 
+                        // Animasi Swipe Up
+                        this.swipeOffset = -100; // Slide up visual
                         setTimeout(() => {
                             const nextIdx = currentIndex + 1;
                             this.playSpecificEpisode(this.currentDrama.episodes[nextIdx], nextIdx);
-                        }, 200);
+                        }, 250); // Timing matches fast swipe
                     } else {
                         this.notify("Ini episode terakhir");
-                        this.swipeOffset = -20;
+                        this.swipeOffset = -20; // Bouncing effect
                         setTimeout(() => this.swipeOffset = 0, 200);
                     }
                 },
                 playPrevEpisode() {
                     const currentIndex = parseInt(this.currentEpIndex);
                     if (currentIndex !== null && currentIndex > 0) {
+                          // Animasi Swipe Down
                           this.swipeOffset = 100; 
                           setTimeout(() => {
                             const prevIdx = currentIndex - 1;
                             this.playSpecificEpisode(this.currentDrama.episodes[prevIdx], prevIdx);
-                          }, 200);
+                          }, 250);
                     } else {
                         this.notify("Ini episode pertama");
                         this.swipeOffset = 20;
@@ -1260,8 +1198,8 @@
                 },
 
                 closePlayer() {
-                    // PENTING: Gunakan history.back() agar trigger event popstate
-                    // Ini membuat tombol X di layar sama fungsinya dengan tombol Back HP
+                    this.isWatching = false;
+                    if(this.playerInstance) this.playerInstance.stop();
                     history.back();
                 },
 
